@@ -48,15 +48,19 @@ class FID:
     """
     Calculate statistics of multi-variate normal distributions
 
-        features (ndarray):  Matrix of data features 
-                                where columns are variables 
-                                and rows are observations
+        features (ndarray):  Matrix of data features where columns are variables and rows are observations
+        weights (ndarray, optional):  1-D array of observation vector weights or probabilities
 
     Returns tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
-    def compute_statistics(self, features: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        mean = np.mean(features, axis=0)
-        cov = np.cov(features, rowvar=False)
+    def compute_statistics(self, features: np.ndarray, weights: Union[np.ndarray, None] = None) -> Tuple[np.ndarray, np.ndarray]:
+        if weights is None:
+            mean = np.mean(features, axis=0)
+            cov = np.cov(features, rowvar=False)
+        else:
+            weights = np.atleast_1d(weights)
+            mean = np.average(features, axis=0, weights=weights)
+            cov = np.cov(features, rowvar=False, ddof=0, aweights=weights)
         return mean, cov
     
 
@@ -64,12 +68,14 @@ class FID:
     Compute data statistics given an input source
 
         input (Tensor, nn.Module, Dataset):  data source to process
+        weights (ndarray, optional):  1-D array of observation vector weights or probabilities
 
     Returns tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
-    def compute_feature_statistics(self, input: Union[torch.Tensor, nn.Module, Dataset], **kwargs) -> Tuple[np.ndarray, np.ndarray]:
+    def compute_feature_statistics(self, input: Union[torch.Tensor, nn.Module, Dataset], weights: Union[np.ndarray, None] = None, 
+                                   **kwargs) -> Tuple[np.ndarray, np.ndarray]:
         features = self.compute_features(input, **kwargs)
-        stats = self.compute_statistics(features)
+        stats = self.compute_statistics(features, weights=weights)
         return stats  # mean, cov
 
 
@@ -115,11 +121,10 @@ class FID:
     """
     Calculate FID given two data sources
 
-        input1, input2 (Tensor, nn.Module, Dataset):  data sources can be different types which 
-        envoke different processing functions
+        input1, input2 (Tensor, nn.Module, Dataset):  data sources can be different types which envoke different processing functions
+        weights1, weights2 (ndarray, optional):  1-D array of observation vector weights or probabilities
 
-        kwargs are passed on to processing functions which take different additional arguments
-        depending on the type of data source
+        kwargs are passed on to processing functions which take different additional arguments depending on the type of data source
             Tensor -> compute_features_from_samples:
                 batch_size (int, optional):  Batch size for iterative processing. Default: 128
             nn.Module -> compute_features_from_generator:
@@ -137,10 +142,12 @@ class FID:
     Returns distance between two distributions from sources (float)
     """
     def score(self, input1: Union[torch.Tensor, nn.Module, Dataset], 
-                    input2: Union[torch.Tensor, nn.Module, Dataset], **kwargs) -> float:
+                    input2: Union[torch.Tensor, nn.Module, Dataset],
+                    weights1: Union[np.ndarray, None] = None,
+                    weights2: Union[np.ndarray, None] = None, **kwargs) -> float:
         features1 = self.compute_features(input1, **kwargs)
         features2 = self.compute_features(input2, **kwargs)
-        stats1 = self.compute_statistics(features1)
-        stats2 = self.compute_statistics(features2)
+        stats1 = self.compute_statistics(features1, weights=weights1)
+        stats2 = self.compute_statistics(features2, weights=weights2)
         fid = self.frechet_distance(*stats1, *stats2)
         return fid
