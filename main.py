@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 import warnings
 
 import numpy as np
@@ -19,9 +19,11 @@ class FID:
     Compute data features given an input source
 
         model_path (str, Path):  path to the InceptionV3 model snapshot
-        device (str, device, None; optional):  device (e.g. 'cpu' or 'cuda:0'). Default: None
+        device (str, device, None; optional):  device (e.g. 'cpu' or 'cuda:0'). 
+            Default: None
     """
-    def __init__(self, model_path: Union[str, Path], device: Union[str, torch.device, None] = None) -> None:
+    def __init__(self, model_path: Union[str, Path], device: Optional[Union[str, 
+                 torch.device]] = None) -> None:
         self.cf = CleanFeatures(model_path, model='InceptionV3', device=device, log='warning')
 
 
@@ -30,9 +32,11 @@ class FID:
 
         input (Tensor, nn.Module, Dataset):  data source to process
 
-    Returns matrix of data features (ndarray) where columns are variables and rows are observations
+    Returns matrix of data features (ndarray) where columns are variables and 
+    rows are observations
     """
-    def compute_features(self, input: Union[torch.Tensor, nn.Module, Dataset], **kwargs) -> np.ndarray:
+    def compute_features(self, input: Union[torch.Tensor, nn.Module, Dataset], 
+                         **kwargs) -> np.ndarray:
         if isinstance(input, torch.Tensor):  # Tensor ready for processing
             features = self.cf.compute_features_from_samples(input, **kwargs)
         elif isinstance(input, nn.Module):  # Generator model
@@ -53,7 +57,8 @@ class FID:
 
     Returns tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
-    def compute_statistics(self, features: np.ndarray, weights: Union[np.ndarray, None] = None) -> Tuple[np.ndarray, np.ndarray]:
+    def compute_statistics(self, features: np.ndarray, weights: Optional[
+                           np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
         if weights is None:
             mean = np.mean(features, axis=0)
             cov = np.cov(features, rowvar=False)
@@ -72,7 +77,8 @@ class FID:
 
     Returns tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
-    def compute_feature_statistics(self, input: Union[torch.Tensor, nn.Module, Dataset], weights: Union[np.ndarray, None] = None, 
+    def compute_feature_statistics(self, input: Union[torch.Tensor, nn.Module, 
+                                   Dataset], weights: Optional[np.ndarray] = None, 
                                    **kwargs) -> Tuple[np.ndarray, np.ndarray]:
         features = self.compute_features(input, **kwargs)
         stats = self.compute_statistics(features, weights=weights)
@@ -88,7 +94,8 @@ class FID:
     Returns distance (float)
     """
     def frechet_distance(self, mean1: np.ndarray, cov1: np.ndarray, 
-                               mean2: np.ndarray, cov2: np.ndarray, eps: float = 1e-6) -> float:
+                               mean2: np.ndarray, cov2: np.ndarray, 
+                               eps: float = 1e-6) -> float:
         mean1 = np.atleast_1d(mean1)
         mean2 = np.atleast_1d(mean2)
 
@@ -143,8 +150,8 @@ class FID:
     """
     def score(self, input1: Union[torch.Tensor, nn.Module, Dataset], 
                     input2: Union[torch.Tensor, nn.Module, Dataset],
-                    weights1: Union[np.ndarray, None] = None,
-                    weights2: Union[np.ndarray, None] = None, **kwargs) -> float:
+                    weights1: Optional[np.ndarray] = None,
+                    weights2: Optional[np.ndarray] = None, **kwargs) -> float:
         features1 = self.compute_features(input1, **kwargs)
         features2 = self.compute_features(input2, **kwargs)
         stats1 = self.compute_statistics(features1, weights=weights1)
