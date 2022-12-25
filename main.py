@@ -42,7 +42,7 @@ class FID:
         elif isinstance(input, nn.Module):  # Generator model
             features = self.cf.compute_features_from_generator(input, **kwargs)
         elif isinstance(input, Dataset):  # Data set
-            features = self.cf.compute_features_from_dataset(input, **kwargs)
+            features, targets = self.cf.compute_features_from_dataset(input, **kwargs)
         else:
             raise ValueError(f"Input type {type(input)} is not supported")
         
