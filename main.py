@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import logging
 from pathlib import Path
 from typing import Tuple, Union, Optional
 import warnings
 
 import numpy as np
-from scipy.linalg import sqrtm
+from scipy.linalg import sqrtm  # type: ignore[import]
 import torch
+from torch import Tensor
 from torch import nn
 from torch.utils.data import Dataset
 
@@ -18,26 +18,27 @@ class FID:
     """
     Compute data features given an input source
 
-        model_path (str, Path):  path to the InceptionV3 model snapshot
+        model_path (str, Path):  path to the embedding model snapshot
         device (str, device, None; optional):  device (e.g. 'cpu' or 'cuda:0'). 
             Default: None
     """
-    def __init__(self, model_path: Union[str, Path], device: Optional[Union[str, 
-                 torch.device]] = None) -> None:
-        self.cf = CleanFeatures(model_path, model='InceptionV3', device=device, log='warning')
+    def __init__(self, model_path: Union[str, Path] = './models', model: str = 'InceptionV3',
+                 device: Optional[Union[str, torch.device]] = None, **kwargs) -> None:
+        self.cf = CleanFeatures(model_path, model=model, device=device, 
+            log='warning', **kwargs)
 
 
     """
-    Compute data features given an input source
+    Compute features given a data source
 
         input (Tensor, nn.Module, Dataset):  data source to process
 
-    Returns matrix of data features (ndarray) where columns are variables and 
-    rows are observations
+    Return matrix of data features (ndarray) where rows are observations 
+    and columns are variables
     """
-    def compute_features(self, input: Union[torch.Tensor, nn.Module, Dataset], 
+    def compute_features(self, input: Union[Tensor, nn.Module, Dataset], 
                          **kwargs) -> np.ndarray:
-        if isinstance(input, torch.Tensor):  # Tensor ready for processing
+        if isinstance(input, Tensor):  # Tensor ready for processing
             features = self.cf.compute_features_from_samples(input, **kwargs)
         elif isinstance(input, nn.Module):  # Generator model
             features = self.cf.compute_features_from_generator(input, **kwargs)
@@ -52,10 +53,10 @@ class FID:
     """
     Calculate statistics of multi-variate normal distributions
 
-        features (ndarray):  Matrix of data features where columns are variables and rows are observations
+        features (ndarray):  Matrix of data features where rows are observations and columns are variables
         weights (ndarray, optional):  1-D array of observation vector weights or probabilities
 
-    Returns tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
+    Return tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
     def compute_statistics(self, features: np.ndarray, weights: Optional[
                            np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
@@ -75,10 +76,10 @@ class FID:
         input (Tensor, nn.Module, Dataset):  data source to process
         weights (ndarray, optional):  1-D array of observation vector weights or probabilities
 
-    Returns tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
+    Return tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
-    def compute_feature_statistics(self, input: Union[torch.Tensor, nn.Module, 
-                                   Dataset], weights: Optional[np.ndarray] = None, 
+    def compute_feature_statistics(self, input: Union[Tensor, nn.Module, Dataset], 
+                                   weights: Optional[np.ndarray] = None, 
                                    **kwargs) -> Tuple[np.ndarray, np.ndarray]:
         features = self.compute_features(input, **kwargs)
         stats = self.compute_statistics(features, weights=weights)
@@ -91,7 +92,7 @@ class FID:
         mean1, mean2 (ndarray):  Vectors of distribution means [N]
         cov1, cov2 (ndarray):  Distribution covariance matrices [N x N]
 
-    Returns distance (float)
+    Return distance (float)
     """
     def frechet_distance(self, mean1: np.ndarray, cov1: np.ndarray, 
                                mean2: np.ndarray, cov2: np.ndarray, 
@@ -146,10 +147,10 @@ class FID:
                 shuffle (bool, optional):  Indicates whether samples will be randomly
                     shuffled or not. Default: False
 
-    Returns distance between two distributions from sources (float)
+    Return distance between two distributions from sources (float)
     """
-    def score(self, input1: Union[torch.Tensor, nn.Module, Dataset], 
-                    input2: Union[torch.Tensor, nn.Module, Dataset],
+    def score(self, input1: Union[Tensor, nn.Module, Dataset], 
+                    input2: Union[Tensor, nn.Module, Dataset],
                     weights1: Optional[np.ndarray] = None,
                     weights2: Optional[np.ndarray] = None, **kwargs) -> float:
         features1 = self.compute_features(input1, **kwargs)
