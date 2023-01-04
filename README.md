@@ -39,21 +39,11 @@ measure = FID(model_path='./models', model='InceptionV3', device=None, **kwargs)
   - InceptionV3 (default)
   - Resnet50
 - `device` (str or torch.device, optional): device which the loaded model will be allocated to. Default: 'cuda' if a GPU is available, otherwise 'cpu'.
-- `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See below.
+- `kwargs` (dict): additional model-specific arguments passed on to `cleanfeatures`. See below.
 
-#### Data source-specific arguments
+#### CLIP model-specific arguments
 
-- Tensor of samples (`torch.Tensor`):
-  - `batch_size` (int, optional): Batch size for sample processing. Default: 128
-- Generator model (`torch.nn.Module`):
-  - `z_dim` (int): Number of generator input dimensions
-  - `num_samples` (int): Number of samples to generate and process
-  - `batch_size` (int, optional): Batch size for sample processing. Default: 128
-- Data set (`torch.utils.data.Dataset`):
-  - `num_samples` (int): Number of samples to generate and process
-  - `batch_size` (int, optional): Batch size for sample processing. Default: 128
-  - `num_workers` (int, optional): Number of parallel threads. Best practice is to set to the number of CPU threads available. Default: 0
-  - `shuffle` (bool, optional): Indicates whether samples will be randomly shuffled or not. Default: False
+- `clip_model` (str, optional): choice of pre-trained CLIP model. Options: RN50, RN101, RN50x4, RN50x16, RN50x64, ViT-B/32, ViT-B/16, ViT-L/14 (default), ViT-L/14@336px
 
 ### Methods
 
@@ -71,7 +61,21 @@ fid = measure.score(input1, input2, weights1, weights2, **kwargs)
 
 - `input1`, `input2` (Tensor or nn.Module or Dataset): data sources, can be different types (see above)
 - `weights1`, `weights2` (ndarray, optional): 1-D array of observation vector weights or probabilities
-- `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See above.
+- `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See below.
+
+##### Data source-specific arguments
+
+- Tensor of samples (`torch.Tensor`):
+  - `batch_size` (int, optional): Batch size for sample processing. Default: 128
+- Generator model (`torch.nn.Module`):
+  - `z_dim` (int): Number of generator input dimensions
+  - `num_samples` (int): Number of samples to generate and process
+  - `batch_size` (int, optional): Batch size for sample processing. Default: 128
+- Data set (`torch.utils.data.Dataset`):
+  - `num_samples` (int): Number of samples to generate and process
+  - `batch_size` (int, optional): Batch size for sample processing. Default: 128
+  - `num_workers` (int, optional): Number of parallel threads. Best practice is to set to the number of CPU threads available. Default: 0
+  - `shuffle` (bool, optional): Indicates whether samples will be randomly shuffled or not. Default: False
 
 #### frechet_distance
 
