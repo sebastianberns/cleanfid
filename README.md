@@ -26,6 +26,30 @@ fid = measure.score(data_1, data_2)  # 3.
 2. Create a new instance, providing a directory path of an embedding model. This can be either the place the model checkpoint is already saved, or the place it should be downloaded and saved to.
 3. Compute the FID, given two data sources (tensor, generator model, or data set).
 
+### Example use case
+
+A typical use case is to evaluate model performance during training. For this, it is most efficient to first calculate the mean and covariance of the data set before the training starts and save the statistics. Then, during training, compute the model statistics. Finally, calculate the FID as the Fréchet distance between the data and model distributions.
+
+```python
+from cleanfid import FID
+
+measure = FID('path/to/model/checkpoint/')
+num_samples = 50_000
+batch_size = 128
+
+# Before training, compute data set mean and covariance
+dataset_stats = measure.compute_feature_statistics(self.dataloader.dataset, 
+  num_samples=num_samples, batch_size=batch_size)
+
+# [...]
+
+# During training, compute the model statistics
+model_stats = measure.compute_feature_statistics(generator, z_dim=generator.z_dim, 
+  num_samples=num_samples, batch_size=batch_size)
+# Then evaluate the FID
+fid = measure.frechet_distance(*dataset_stats, *model_stats)
+```
+
 ### FID class
 
 ```python
