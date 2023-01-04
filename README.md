@@ -138,6 +138,22 @@ features = measure.compute_features(input, **kwargs)
   - (Dataset): data set with tensors in range [0, 1]. Processed by `cleanfeatures.compute_features_from_dataset()`
 - `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See above.
 
+#### compute_feature_statistics
+
+Compute the statistics of features given a data source (can be of different types), handled by `cleanfeatures`. Return tuple of statistics: mean and covariance matrix.
+
+Combines the previous two methods into one, first calling `compute_features`, followed by `compute_statistics`. 
+
+```python
+features = measure.compute_feature_statistics(input, **kwargs)
+```
+
+- `input` accepts different data types:
+  - (Tensor): data matrix with observations in rows and variables in columns. Processed by `cleanfeatures.compute_features_from_samples()`
+  - (nn.Module): pre-trained generator model with tensor output [B, C, W, H]. Processed by `cleanfeatures.compute_features_from_generator()`
+  - (Dataset): data set with tensors in range [0, 1]. Processed by `cleanfeatures.compute_features_from_dataset()`
+- `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See above.
+
 ## References
 
 Heusel, M., Ramsauer, H., Unterthiner, T., Nessler, B., & Hochreiter, S. (2017). GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium. [*Advances in Neural Information Processing Systems*, 30.](https://proceedings.neurips.cc/paper/2017/hash/8a1d694707eb0fefe65871369074926d-Abstract.html)
