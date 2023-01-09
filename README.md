@@ -62,6 +62,7 @@ measure = FID(model_path='./models', model='InceptionV3', device=None, **kwargs)
   - DVAE (DALL-E)
   - InceptionV3 (default)
   - Resnet50
+- `cf` (CleanFeatures, optional): an initialized instance of CleanFeatures. If set, all other arguments will be ignored.
 - `device` (str or torch.device, optional): device which the loaded model will be allocated to. Default: 'cuda' if a GPU is available, otherwise 'cpu'.
 - `kwargs` (dict): additional model-specific arguments passed on to `cleanfeatures`. See below.
 

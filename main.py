@@ -17,22 +17,22 @@ from cleanfeatures import CleanFeatures
 class FID:
     """
     Compute data features given an input source
-
-        model_path (str, Path):  path to the embedding model snapshot
-        device (str, device, None; optional):  device (e.g. 'cpu' or 'cuda:0'). 
-            Default: None
+        model_path (str, Path):  path to the save directory of embedding model checkpoints. Default: './models'
+        model (str, optional): name of embedding model. Default: 'InceptionV3'
+        cf (CleanFeatures, optional): instance of CleanFeatures
+        device (str, device, optional):  device (e.g. 'cpu' or 'cuda:0')
+        kwargs (dict): additional model-specific arguments passed on to CleanFeatures.
     """
-    def __init__(self, model_path: Union[str, Path] = './models', model: str = 'InceptionV3',
+    def __init__(self, model_path: Union[str, Path] = './models', model: str = 'InceptionV3', 
+                 cf: Optional[CleanFeatures] = None,
                  device: Optional[Union[str, torch.device]] = None, **kwargs) -> None:
-        self.cf = CleanFeatures(model_path, model=model, device=device, 
-            log='warning', **kwargs)
-
+        if cf is None:
+            cf = CleanFeatures(model_path, model=model, device=device, log='warning', **kwargs)
+        self.cf = cf
 
     """
     Compute features given a data source
-
         input (Tensor, nn.Module, Dataset):  data source to process
-
     Return matrix of data features (ndarray) where rows are observations 
     and columns are variables
     """
@@ -52,10 +52,8 @@ class FID:
 
     """
     Calculate statistics of multi-variate normal distributions
-
         features (ndarray):  Matrix of data features where rows are observations and columns are variables
         weights (ndarray, optional):  1-D array of observation vector weights or probabilities
-
     Return tuple of statistics: mean (ndarray) and covariance matrix (ndarray)
     """
     def compute_statistics(self, features: np.ndarray, weights: Optional[
@@ -88,10 +86,8 @@ class FID:
 
     """
     Calculate Fréchet distance between two multi-variate normal distributions
-
         mean1, mean2 (ndarray):  Vectors of distribution means [N]
         cov1, cov2 (ndarray):  Distribution covariance matrices [N x N]
-
     Return distance (float)
     """
     def frechet_distance(self, mean1: np.ndarray, cov1: np.ndarray, 
@@ -128,7 +124,6 @@ class FID:
 
     """
     Calculate FID given two data sources
-
         input1, input2 (Tensor, nn.Module, Dataset):  data sources can be different types which envoke different processing functions
         weights1, weights2 (ndarray, optional):  1-D array of observation vector weights or probabilities
 
@@ -146,7 +141,6 @@ class FID:
                     is to set to the number of CPU threads available. Default: 0
                 shuffle (bool, optional):  Indicates whether samples will be randomly
                     shuffled or not. Default: False
-
     Return distance between two distributions from sources (float)
     """
     def score(self, input1: Union[Tensor, nn.Module, Dataset], 
