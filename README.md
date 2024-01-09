@@ -2,6 +2,11 @@
 
 Compute the Fréchet Inception Distance (FID) between two distributions from different data sources (tensor, generator model, or dataset). Raw image data is passed through an embedding model to compute ‘clean’ features. Check the [cleanfeatures documentation](https://github.com/sebastianberns/cleanfeatures) for a list of available embedding models (default: InceptionV3). Partially builds on code from [bioinf-jku/TTUR](https://github.com/bioinf-jku/TTUR).
 
+## Weighted FID
+
+Apart from the conventional FID formulation, this repository implements *Weighted FID* (wFID) as proposed in [Towards Mode Balancing of Generative Models via Diversity Weights (Berns et al., 2023, ICCC)](https://arxiv.org/abs/2304.11961). 
+Weight vectors can be passed alongside the data sources to quantify the weighting of individual data examples. Statistics are then computed on the weighted distribution.
+
 ## Setup
 
 ### Dependencies
