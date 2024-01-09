@@ -1,6 +1,6 @@
 # Fréchet Inception Distance of Clean Features
 
-Compute the Fréchet Inception Distance (FID) between two distributions from different data sources (tensor, generator model, or data set). Raw image data is passed through an embedding model to compute ‘clean’ features. Check the [cleanfeatures documentation](https://github.com/sebastianberns/cleanfeatures) for a list of available embedding models (default: InceptionV3). Partially builds on code from [bioinf-jku/TTUR](https://github.com/bioinf-jku/TTUR).
+Compute the Fréchet Inception Distance (FID) between two distributions from different data sources (tensor, generator model, or dataset). Raw image data is passed through an embedding model to compute ‘clean’ features. Check the [cleanfeatures documentation](https://github.com/sebastianberns/cleanfeatures) for a list of available embedding models (default: InceptionV3). Partially builds on code from [bioinf-jku/TTUR](https://github.com/bioinf-jku/TTUR).
 
 ## Setup
 
@@ -24,11 +24,11 @@ fid = measure.score(data_1, data_2)  # 3.
 
 1. Import the main class.
 2. Create a new instance, providing a directory path of an embedding model. This can be either the place the model checkpoint is already saved, or the place it should be downloaded and saved to.
-3. Compute the FID, given two data sources (tensor, generator model, or data set).
+3. Compute the FID, given two data sources (tensor, generator model, or dataset).
 
 ### Example use case
 
-A typical use case is to evaluate model performance during training. For this, it is most efficient to first calculate the mean and covariance of the data set before the training starts and save the statistics. Then, during training, compute the model statistics. Finally, calculate the FID as the Fréchet distance between the data and model distributions.
+A typical use case is to evaluate model performance during training. For this, it is most efficient to first calculate the mean and covariance of the dataset before the training starts and save the statistics. Then, during training, compute the model statistics. Finally, calculate the FID as the Fréchet distance between the data and model distributions.
 
 ```python
 from cleanfid import FID
@@ -37,7 +37,7 @@ measure = FID('path/to/model/checkpoint/')
 num_samples = 50_000
 batch_size = 128
 
-# Before training, compute data set mean and covariance
+# Before training, compute dataset mean and covariance
 dataset_stats = measure.compute_feature_statistics(self.dataloader.dataset, 
   num_samples=num_samples, batch_size=batch_size)
 
@@ -96,7 +96,7 @@ fid = measure.score(input1, input2, weights1, weights2, **kwargs)
   - `z_dim` (int): Number of generator input dimensions
   - `num_samples` (int): Number of samples to generate and process
   - `batch_size` (int, optional): Batch size for sample processing. Default: 128
-- Data set (`torch.utils.data.Dataset`):
+- Dataset (`torch.utils.data.Dataset`):
   - `num_samples` (int): Number of samples to generate and process
   - `batch_size` (int, optional): Batch size for sample processing. Default: 128
   - `num_workers` (int, optional): Number of parallel threads. Best practice is to set to the number of CPU threads available. Default: 0
@@ -136,7 +136,7 @@ features = measure.compute_features(input, **kwargs)
 - `input` accepts different data types:
   - (Tensor): data matrix with observations in rows and variables in columns. Processed by `cleanfeatures.compute_features_from_samples()`
   - (nn.Module): pre-trained generator model with tensor output [B, C, W, H]. Processed by `cleanfeatures.compute_features_from_generator()`
-  - (Dataset): data set with tensors in range [0, 1]. Processed by `cleanfeatures.compute_features_from_dataset()`
+  - (Dataset): dataset with tensors in range [0, 1]. Processed by `cleanfeatures.compute_features_from_dataset()`
 - `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See above.
 
 #### compute_feature_statistics
@@ -152,7 +152,7 @@ features = measure.compute_feature_statistics(input, **kwargs)
 - `input` accepts different data types:
   - (Tensor): data matrix with observations in rows and variables in columns. Processed by `cleanfeatures.compute_features_from_samples()`
   - (nn.Module): pre-trained generator model with tensor output [B, C, W, H]. Processed by `cleanfeatures.compute_features_from_generator()`
-  - (Dataset): data set with tensors in range [0, 1]. Processed by `cleanfeatures.compute_features_from_dataset()`
+  - (Dataset): dataset with tensors in range [0, 1]. Processed by `cleanfeatures.compute_features_from_dataset()`
 - `kwargs` (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method. See above.
 
 ## References
