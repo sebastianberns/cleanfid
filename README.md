@@ -78,7 +78,7 @@ All methods return a tensor of embedded features [B, F], where F is the number o
 
 #### score
 
-Calculate FID given between two distributions from two data sources.
+Calculate FID between two distributions from two data sources.
 
 ```python
 fid = measure.score(input1, input2, weights1, weights2, **kwargs)

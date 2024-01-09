@@ -30,14 +30,15 @@ class FID:
             cf = CleanFeatures(model_path, model=model, device=device, log='warning', **kwargs)
         self.cf = cf
 
+
     """
     Compute features given a data source
         input (Tensor, nn.Module, Dataset):  data source to process
+        kwargs (dict): additional data source-specific arguments passed on to the corresponding `cleanfeatures` method
     Return matrix of data features (ndarray) where rows are observations 
     and columns are variables
     """
-    def compute_features(self, input: Union[Tensor, nn.Module, Dataset], 
-                         **kwargs) -> np.ndarray:
+    def compute_features(self, input: Union[Tensor, nn.Module, Dataset], **kwargs) -> np.ndarray:
         if isinstance(input, Tensor):  # Tensor ready for processing
             features = self.cf.compute_features_from_samples(input, **kwargs)
         elif isinstance(input, nn.Module):  # Generator model
